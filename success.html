@@ -13,12 +13,66 @@
     <div class="simple-card">
       <p class="eyebrow">Payment successful</p>
       <h1>Thank you for your order!</h1>
+
       <p>
-        Your payment was successful. The download delivery step will be connected next.
+        Your payment was successful. Your download links are being prepared below.
       </p>
+
+      <div id="downloadArea" class="download-area">
+        <p>Loading your downloads...</p>
+      </div>
 
       <a href="./index.html" class="primary-button">Back to shop</a>
     </div>
   </main>
+
+  <script>
+    async function loadDownloads() {
+      const downloadArea = document.getElementById("downloadArea");
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+
+      if (!sessionId) {
+        downloadArea.innerHTML = `
+          <p>We could not find your order session. Please contact support.</p>
+        `;
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/get-download-links?session_id=${sessionId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Unable to load downloads");
+        }
+
+        downloadArea.innerHTML = `
+          <h2>Your downloads are ready</h2>
+          <div class="download-list">
+            ${data.downloads.map(item => `
+              <a class="download-button" href="${item.url}" target="_blank" rel="noopener">
+                Download ${item.label}
+              </a>
+            `).join("")}
+          </div>
+          <p class="download-note">
+            Download links are private and expire after 1 hour.
+          </p>
+        `;
+      } catch (error) {
+        console.error(error);
+
+        downloadArea.innerHTML = `
+          <p>
+            Your payment was successful, but we could not load the download links.
+            Please contact support with your order confirmation.
+          </p>
+        `;
+      }
+    }
+
+    loadDownloads();
+  </script>
 </body>
 </html>
