@@ -28,7 +28,10 @@
         <a href="#shop">Shop</a>
         <a href="#how">How it works</a>
         <a href="#faq">FAQ</a>
-        <a href="#contact" class="nav-button">Contact</a>
+
+        <button id="openCart" class="cart-button">
+          Cart <span id="cartCount">0</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -143,7 +146,9 @@
 
               <div class="product-footer">
                 <strong>$5.99</strong>
-                <a href="#contact" class="small-button">Buy now</a>
+                <button class="small-button" data-add-to-cart="rainy-day-pack">
+                  Add to cart
+                </button>
               </div>
             </div>
           </article>
@@ -170,7 +175,9 @@
 
               <div class="product-footer">
                 <strong>$6.99</strong>
-                <a href="#contact" class="small-button">Buy now</a>
+                <button class="small-button" data-add-to-cart="dinosaur-pack">
+                  Add to cart
+                </button>
               </div>
             </div>
           </article>
@@ -197,7 +204,9 @@
 
               <div class="product-footer">
                 <strong>$4.99</strong>
-                <a href="#contact" class="small-button">Buy now</a>
+                <button class="small-button" data-add-to-cart="travel-pack">
+                  Add to cart
+                </button>
               </div>
             </div>
           </article>
@@ -251,7 +260,9 @@
         <div class="bundle-price">
           <span>Bundle price</span>
           <strong>$12.99</strong>
-          <a href="#contact" class="primary-button">Get the bundle</a>
+          <button class="primary-button" data-add-to-cart="starter-bundle">
+            Get the bundle
+          </button>
         </div>
       </div>
     </section>
@@ -333,6 +344,43 @@
       <p>© 2026 Tiny Print Club. All rights reserved.</p>
     </div>
   </footer>
-<script src="./script.js"></script>
+
+  <!-- CART OVERLAY -->
+  <div id="cartOverlay" class="cart-overlay"></div>
+
+  <!-- CART DRAWER -->
+  <aside id="cartDrawer" class="cart-drawer">
+    <div class="cart-header">
+      <div>
+        <p class="eyebrow">Your order</p>
+        <h2>Cart</h2>
+      </div>
+
+      <button id="closeCart" class="close-cart">×</button>
+    </div>
+
+    <div id="cartItems" class="cart-items"></div>
+
+    <div class="cart-summary">
+      <div class="cart-row">
+        <span>Subtotal</span>
+        <strong id="cartTotal">$0.00</strong>
+      </div>
+
+      <p class="cart-note">
+        Prices are shown in AUD. No shipping fees apply. This is a digital PDF product.
+      </p>
+
+      <button id="checkoutButton" class="checkout-button">
+        Checkout
+      </button>
+
+      <small>
+        Secure payment with Stripe and PayPal will be added in the next step.
+      </small>
+    </div>
+  </aside>
+
+  <script src="./script.js"></script>
 </body>
 </html>
