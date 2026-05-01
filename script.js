@@ -186,7 +186,4 @@ document.getElementById("checkoutButton").addEventListener("click", async () => 
   }
 });
 
-  alert("Next step: we will connect this button to Stripe Checkout.");
-});
-
 renderCart();
