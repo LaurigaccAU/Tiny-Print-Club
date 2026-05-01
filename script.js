@@ -152,11 +152,39 @@ document.getElementById("openCart").addEventListener("click", openCart);
 document.getElementById("closeCart").addEventListener("click", closeCart);
 cartOverlay.addEventListener("click", closeCart);
 
-document.getElementById("checkoutButton").addEventListener("click", () => {
+document.getElementById("checkoutButton").addEventListener("click", async () => {
   if (cart.length === 0) {
     alert("Your cart is empty.");
     return;
   }
+
+  const checkoutButton = document.getElementById("checkoutButton");
+  checkoutButton.disabled = true;
+  checkoutButton.textContent = "Redirecting...";
+
+  try {
+    const response = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ cart })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Checkout failed");
+    }
+
+    window.location.href = data.url;
+  } catch (error) {
+    console.error(error);
+    alert("Checkout could not start. Please try again.");
+    checkoutButton.disabled = false;
+    checkoutButton.textContent = "Checkout";
+  }
+});
 
   alert("Next step: we will connect this button to Stripe Checkout.");
 });
