@@ -33,6 +33,18 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ error: "Missing STRIPE_SECRET_KEY in Vercel" });
+    }
+
+    if (!process.env.SUPABASE_URL) {
+      return res.status(500).json({ error: "Missing SUPABASE_URL in Vercel" });
+    }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return res.status(500).json({ error: "Missing SUPABASE_SERVICE_ROLE_KEY in Vercel" });
+    }
+
     const { session_id } = req.query;
 
     if (!session_id) {
@@ -53,11 +65,18 @@ module.exports = async function handler(req, res) {
     const addedFiles = new Set();
 
     for (const item of lineItems.data) {
-      const product = productFiles[item.description];
+      const productName = item.description;
+      const product = productFiles[productName];
 
-      if (!product) continue;
+      if (!product) {
+        console.log("No product file mapping found for:", productName);
+        continue;
+      }
 
-      if (addedFiles.has(product.filePath)) continue;
+      if (addedFiles.has(product.filePath)) {
+        continue;
+      }
+
       addedFiles.add(product.filePath);
 
       const { data, error } = await supabase.storage
@@ -65,7 +84,11 @@ module.exports = async function handler(req, res) {
         .createSignedUrl(product.filePath, 60 * 60);
 
       if (error) {
-        throw error;
+        console.error("Supabase signed URL error:", error);
+        return res.status(500).json({
+          error: `Could not create download link for ${product.filePath}`,
+          details: error.message
+        });
       }
 
       downloads.push({
@@ -75,12 +98,19 @@ module.exports = async function handler(req, res) {
     }
 
     if (downloads.length === 0) {
-      return res.status(404).json({ error: "No downloads found for this order" });
+      return res.status(404).json({
+        error: "No downloads found for this order",
+        stripeProductsFound: lineItems.data.map(item => item.description)
+      });
     }
 
     return res.status(200).json({ downloads });
   } catch (error) {
     console.error("Download link error:", error);
-    return res.status(500).json({ error: "Unable to generate download links" });
+
+    return res.status(500).json({
+      error: "Unable to generate download links",
+      details: error.message
+    });
   }
 };
